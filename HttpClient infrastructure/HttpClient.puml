@@ -1,0 +1,73 @@
+@startuml
+
+class HttpClient 
+interface IHttpClientFactory{
+  CreateClient(string name)
+}
+class DefaultHttpClientFactory
+
+abstract HttpMessageHandler
+abstract DelegatingHandler
+class HttpClientHandler
+class SocketsHttpHandler
+class LifetimeTrackingHttpMessageHandler
+
+note top of HttpClientHandler : .NET Core 2.0 and earlier
+note top of SocketsHttpHandler : .NET Core 2.1 and later
+
+
+abstract HttpMessageHandlerBuilder
+class DefaultHttpMessageHandlerBuilder
+interface IHttpMessageHandlerBuilderFilter
+
+class ActiveHandlerTrackingEntry
+class ExpiredHandlerTrackingEntry
+class WeakReference
+
+class HttpClientFactoryOptions{
+  List<Action<HttpClient>> HttpClientActions
+  List<Action<HttpMessageHandlerBuilder>> HttpMessageHandlerBuilderActions
+  TimeSpan HandlerLifetime
+}
+
+interface IServiceScope
+note right of IServiceScope : is scope in which pipeline is built
+
+note right of DefaultHttpClientFactory : is registered as Singleton
+
+note right of LifetimeTrackingHttpMessageHandler : is outmost handler in pipeline
+note "are primary handlers.\nActually make socket connection\nand send request" as N1
+HttpClientHandler .. N1
+N1 .. SocketsHttpHandler
+
+DefaultHttpClientFactory -up-|> IHttpClientFactory
+DefaultHttpClientFactory o-- HttpClientFactoryOptions
+DefaultHttpClientFactory o-- "1..*" IHttpMessageHandlerBuilderFilter : are applied right before call Build method
+DefaultHttpClientFactory o-- "1..*" ActiveHandlerTrackingEntry : contains dictionary(key is name) of
+DefaultHttpClientFactory o-- "1..*" ExpiredHandlerTrackingEntry : contains queue of
+DefaultHttpClientFactory --> IServiceScope : disposes after there isn't any reference to tracking handler
+
+ActiveHandlerTrackingEntry --> LifetimeTrackingHttpMessageHandler : tracks when expired
+ActiveHandlerTrackingEntry o-- IServiceScope
+ActiveHandlerTrackingEntry -right-> ExpiredHandlerTrackingEntry : is replaces after timer expired by
+ExpiredHandlerTrackingEntry o-- IServiceScope
+ExpiredHandlerTrackingEntry o-- WeakReference : has
+WeakReference --> LifetimeTrackingHttpMessageHandler : of
+HttpMessageHandlerBuilder --> IServiceScope : is created in
+
+DelegatingHandler --|> HttpMessageHandler
+HttpClientHandler --|> HttpMessageHandler
+SocketsHttpHandler --|> HttpMessageHandler
+LifetimeTrackingHttpMessageHandler --|> DelegatingHandler
+
+
+HttpClientFactoryOptions --> HttpClient : contains actions to configure
+HttpClientFactoryOptions --> HttpMessageHandlerBuilder : contains actions to configure
+HttpClientFactoryOptions -right-> ActiveHandlerTrackingEntry : contains lifetime of
+
+DefaultHttpMessageHandlerBuilder -up-|> HttpMessageHandlerBuilder
+HttpMessageHandlerBuilder --> HttpMessageHandler : builds
+IHttpMessageHandlerBuilderFilter --> HttpMessageHandlerBuilder : is action to configure
+
+@enduml
+
