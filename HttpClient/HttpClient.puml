@@ -35,17 +35,17 @@ note right of IServiceScope : is scope in which pipeline is built
 
 note right of DefaultHttpClientFactory : is registered as Singleton
 
-note right of LifetimeTrackingHttpMessageHandler : is outmost handler in pipeline
+note left of LifetimeTrackingHttpMessageHandler : is outmost handler in pipeline
 note "are primary handlers.\nActually make socket connection\nand send request" as N1
 HttpClientHandler .. N1
 N1 .. SocketsHttpHandler
 
 DefaultHttpClientFactory -up-|> IHttpClientFactory
 DefaultHttpClientFactory o-- HttpClientFactoryOptions
-DefaultHttpClientFactory o-- "1..*" IHttpMessageHandlerBuilderFilter : are applied right before call Build method
-DefaultHttpClientFactory o-- "1..*" ActiveHandlerTrackingEntry : contains dictionary(key is name) of
+DefaultHttpClientFactory o-- "1..*" IHttpMessageHandlerBuilderFilter
+DefaultHttpClientFactory o-- "1..*" ActiveHandlerTrackingEntry : contains\ndictionary\n(key is name)\nof
 DefaultHttpClientFactory o-- "1..*" ExpiredHandlerTrackingEntry : contains queue of
-DefaultHttpClientFactory --> IServiceScope : disposes after there isn't any reference to tracking handler
+DefaultHttpClientFactory --> IServiceScope : disposes after there\nisn't any reference\nto expired handler
 
 ActiveHandlerTrackingEntry --> LifetimeTrackingHttpMessageHandler : tracks when expired
 ActiveHandlerTrackingEntry o-- IServiceScope
@@ -61,13 +61,13 @@ SocketsHttpHandler --|> HttpMessageHandler
 LifetimeTrackingHttpMessageHandler --|> DelegatingHandler
 
 
-HttpClientFactoryOptions --> HttpClient : contains actions to configure
-HttpClientFactoryOptions --> HttpMessageHandlerBuilder : contains actions to configure
+HttpClientFactoryOptions --> HttpClient : contains actions\nto configure
+HttpClientFactoryOptions --> HttpMessageHandlerBuilder : contains actions\nto configure
 HttpClientFactoryOptions -right-> ActiveHandlerTrackingEntry : contains lifetime of
 
 DefaultHttpMessageHandlerBuilder -up-|> HttpMessageHandlerBuilder
 HttpMessageHandlerBuilder --> HttpMessageHandler : builds
-IHttpMessageHandlerBuilderFilter --> HttpMessageHandlerBuilder : is action to configure
+IHttpMessageHandlerBuilderFilter --> HttpMessageHandlerBuilder : is action to configure\n(right before Build() is called)
 
 @enduml
 
