@@ -29,3 +29,4 @@ you will get a new instance of ``HttpClient``, but which has the same handler pi
 ## Sources
 1. [Exploring the code behind IHttpClientFactory in depth](https://andrewlock.net/exporing-the-code-behind-ihttpclientfactory/) by Andrew Lock
 1. [HTTPCLIENTFACTORY IN ASP.NET CORE 2.1 series](https://www.stevejgordon.co.uk/introduction-to-httpclientfactory-aspnetcore) by Steve Gordon
+1. [DefaultHttpClientFactory.cs](https://github.com/aspnet/HttpClientFactory/blob/master/src/Microsoft.Extensions.Http/DefaultHttpClientFactory.cs)
