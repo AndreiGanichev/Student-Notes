@@ -34,8 +34,8 @@ note right of DefaultHttpClientFactory : is registered as Singleton
 
 note bottom of LifetimeTrackingHttpMessageHandler : is outmost handler in pipeline
 note "are primary handlers.\nActually make socket connection\nand send request" as N1
-HttpClientHandler .up. N1 : .NET 2.0 and earlier
-N1 .. SocketsHttpHandler : since .NET 2.1
+HttpClientHandler .up. N1 : .NET Core 2.0 and earlier
+N1 .. SocketsHttpHandler : since .NET Core 2.1
 
 DefaultHttpClientFactory -up-|> IHttpClientFactory
 DefaultHttpClientFactory o-- HttpClientFactoryOptions
