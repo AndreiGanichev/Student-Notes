@@ -1,44 +1,41 @@
 @startuml
 
-class HttpClient 
-interface IHttpClientFactory{
+class HttpClient #F08080
+interface IHttpClientFactory {
   CreateClient(string name)
 }
-class DefaultHttpClientFactory
+class DefaultHttpClientFactory #3CB371
 
-abstract HttpMessageHandler
-abstract DelegatingHandler
-class HttpClientHandler
-class SocketsHttpHandler
-class LifetimeTrackingHttpMessageHandler
-
-note top of HttpClientHandler : .NET Core 2.0 and earlier
-note top of SocketsHttpHandler : .NET Core 2.1 and later
+abstract HttpMessageHandler #00FFFF
+abstract DelegatingHandler #00FFFF
+class HttpClientHandler #00FFFF
+class SocketsHttpHandler #00FFFF
+class LifetimeTrackingHttpMessageHandler #00FFFF
 
 
 abstract HttpMessageHandlerBuilder
 class DefaultHttpMessageHandlerBuilder
-interface IHttpMessageHandlerBuilderFilter
+interface IHttpMessageHandlerBuilderFilter #3CB371
 
-class ActiveHandlerTrackingEntry
-class ExpiredHandlerTrackingEntry
+class ActiveHandlerTrackingEntry #3CB371
+class ExpiredHandlerTrackingEntry #3CB371
 class WeakReference
 
-class HttpClientFactoryOptions{
+class HttpClientFactoryOptions #3CB371{
   List<Action<HttpClient>> HttpClientActions
   List<Action<HttpMessageHandlerBuilder>> HttpMessageHandlerBuilderActions
   TimeSpan HandlerLifetime
 }
 
 interface IServiceScope
-note right of IServiceScope : is scope in which pipeline is built
+note bottom of IServiceScope : is scope in which pipeline is built
 
 note right of DefaultHttpClientFactory : is registered as Singleton
 
-note left of LifetimeTrackingHttpMessageHandler : is outmost handler in pipeline
+note bottom of LifetimeTrackingHttpMessageHandler : is outmost handler in pipeline
 note "are primary handlers.\nActually make socket connection\nand send request" as N1
-HttpClientHandler .. N1
-N1 .. SocketsHttpHandler
+HttpClientHandler .up. N1 : .NET 2.0 and earlier
+N1 .. SocketsHttpHandler : since .NET 2.1
 
 DefaultHttpClientFactory -up-|> IHttpClientFactory
 DefaultHttpClientFactory o-- HttpClientFactoryOptions
@@ -63,7 +60,7 @@ LifetimeTrackingHttpMessageHandler --|> DelegatingHandler
 
 HttpClientFactoryOptions --> HttpClient : contains actions\nto configure
 HttpClientFactoryOptions --> HttpMessageHandlerBuilder : contains actions\nto configure
-HttpClientFactoryOptions -right-> ActiveHandlerTrackingEntry : contains lifetime of
+HttpClientFactoryOptions -right-> ActiveHandlerTrackingEntry : contains\nlifetime of
 
 DefaultHttpMessageHandlerBuilder -up-|> HttpMessageHandlerBuilder
 HttpMessageHandlerBuilder --> HttpMessageHandler : builds
