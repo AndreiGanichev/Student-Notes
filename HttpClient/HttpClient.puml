@@ -16,6 +16,7 @@ class LifetimeTrackingHttpMessageHandler #00FFFF
 abstract HttpMessageHandlerBuilder
 class DefaultHttpMessageHandlerBuilder
 interface IHttpMessageHandlerBuilderFilter #3CB371
+class LoggingHttpMessageHandlerBuilderFilter
 
 class ActiveHandlerTrackingEntry #3CB371
 class ExpiredHandlerTrackingEntry #3CB371
@@ -32,10 +33,12 @@ note bottom of IServiceScope : is scope in which pipeline is built
 
 note right of DefaultHttpClientFactory : is registered as Singleton
 
-note bottom of LifetimeTrackingHttpMessageHandler : is outmost handler in pipeline
+note right of LifetimeTrackingHttpMessageHandler : is outmost handler in pipeline
 note "are primary handlers.\nActually make socket connection\nand send request" as N1
 HttpClientHandler .up. N1 : .NET Core 2.0 and earlier
 N1 .. SocketsHttpHandler : since .NET Core 2.1
+
+note bottom of LoggingHttpMessageHandlerBuilderFilter : is registered by default
 
 DefaultHttpClientFactory -up-|> IHttpClientFactory
 DefaultHttpClientFactory o-- HttpClientFactoryOptions
@@ -43,6 +46,7 @@ DefaultHttpClientFactory o-- "1..*" IHttpMessageHandlerBuilderFilter
 DefaultHttpClientFactory o-- "1..*" ActiveHandlerTrackingEntry : contains\ndictionary\n(key is name)\nof
 DefaultHttpClientFactory o-- "1..*" ExpiredHandlerTrackingEntry : contains queue of
 DefaultHttpClientFactory --> IServiceScope : disposes after there\nisn't any reference\nto expired handler
+LoggingHttpMessageHandlerBuilderFilter -up-|> IHttpMessageHandlerBuilderFilter
 
 ActiveHandlerTrackingEntry --> LifetimeTrackingHttpMessageHandler : tracks when expired
 ActiveHandlerTrackingEntry o-- IServiceScope
