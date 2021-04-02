@@ -15,11 +15,18 @@ It is configured in ConfigureService method:
         c.BaseAddress = new Uri("https://api.github.com/"); //configures HttpClient
     })
     .AddHttpMessageHandler<ValidateHeaderHandler>() //configures pipeline
+    .AddHttpMessageHandler<RetryHandler>() //configures pipeline
+    .AddHttpMessageHandler<LoggingHandler>() //configures pipeline
+
     .SetHandlerLifetime(TimeSpan.FromMinutes(3)); //configures pipeline lifetime
 ```
 
 It contains a life time of ```ActiveHandlerTrackingEntry```. During this time every time you call ``CreateClient()``,
 you will get a new instance of ``HttpClient``, but which has the same handler pipeline as was originally created.
+
+It also configures pipeline handlers. The last added handler is the closest to an actual http request.
+
+![pipeline](https://raw.githubusercontent.com/AndreiGanichev/Student-Notes/main/HttpClient/HttpClient_pipeline.svg)
 
 ## IHttpMessageHandlerBuilderFilter
 
