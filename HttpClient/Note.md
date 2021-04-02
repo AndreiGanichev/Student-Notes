@@ -34,8 +34,13 @@ It also configures pipeline handlers. The last added handler is the closest to a
 
 ## TimeOut
 
-- ```HttpClient.Timeout``` will apply as an overall timeout to each entire call through ```HttpClient```, including all tries and waits between retries.
+- ```HttpClient.Timeout``` will apply as an overall timeout to each entire operation through ```HttpClient```, including all tries and waits between retries.
 - To apply a timeout-per-try, configure a ```RetryPolicy``` before a Polly ```TimeoutPolicy```.
+
+## Interesting decisions
+```ExpiredHandlerTrackingEntry``` has ```WeakReference``` to ```LifetimeTrackingHttpMessageHandler``` so it can track if the pipeline alive(not collected by GC after all HttpClients using the pipeline have been collected). If it is not alive the ```ExpiredHandlerTrackingEntry``` instance can also be disposed.
+
+Active handlers(pipelines) are stored in ```DefaultHttpClientFactory``` field of type ```ConcurrentDictionary<string, Lazy<ActiveHandlerTrackingEntry>>```. Using Lazy<> here is a neat [trick](https://andrewlock.net/making-getoradd-on-concurrentdictionary-thread-safe-using-lazy/) to make the GetOrAdd function thread safe
 
 
 ## Sources
